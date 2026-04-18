@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Chalakkal — Industrial Logistics</title>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Rajdhani:wght@400;500;600;700&family=Roboto+Condensed:ital,wght@0,300;0,400;0,700;1,300&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --y:#F5C518; --y2:#FFD740; --y3:#E6B800;
+  --c:#141414; --c2:#1C1C1C; --c3:#252525; --c4:#2E2E2E;
+  --w:#FFFFFF; --ow:#F0EDE6; --g:#888; --g2:#555;
+  --b:rgba(245,197,24,.2); --b2:rgba(255,255,255,.08); --b3:rgba(255,255,255,.15);
+  --fh:'Oswald',sans-serif; --fu:'Rajdhani',sans-serif; --fb:'Roboto Condensed',sans-serif;
+  --e:cubic-bezier(.4,0,.2,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--c);color:var(--w);font-family:var(--fb);overflow-x:hidden;}
+::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:var(--c);}::-webkit-scrollbar-thumb{background:var(--y);}
+.page{display:none;min-height:100vh;}
+.page.active{display:block;animation:pgIn .4s var(--e);}
+@keyframes pgIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── NAV ── */
+nav{position:fixed;inset:0 0 auto;z-index:9000;background:var(--c);border-bottom:2px solid var(--y);display:flex;align-items:center;justify-content:space-between;padding:0 5%;height:66px;}
+.nb{display:flex;align-items:center;gap:10px;cursor:pointer;text-decoration:none;}
+.nb-box{width:38px;height:38px;background:var(--y);display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-size:1.1rem;font-weight:700;color:var(--c);flex-shrink:0;}
+.nb-name{font-family:var(--fh);font-size:1.5rem;font-weight:700;color:var(--w);letter-spacing:3px;line-height:1;}
+.nb-tag{font-family:var(--fb);font-size:.58rem;font-weight:300;letter-spacing:4px;text-transform:uppercase;color:var(--g);line-height:1;margin-top:2px;}
+.nl{display:flex;align-items:center;gap:0;list-style:none;}
+.nl>li>a,.nl>li>button{font-family:var(--fu);font-size:.8rem;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--g);background:none;border:none;padding:8px 15px;cursor:pointer;text-decoration:none;transition:color .2s;display:flex;align-items:center;gap:5px;border-left:1px solid var(--b2);}
+.nl>li:first-child>a,.nl>li:first-child>button{border-left:none;}
+.nl>li>a:hover,.nl>li>button:hover,.nl>li>a.active,.nl>li>button.active{color:var(--y);}
+/* Dropdown */
+.dw{position:relative;}
+.dchev{transition:transform .22s;}
+.dw:hover .dchev{transform:rotate(180deg);}
+.dp{position:absolute;top:calc(100%+2px);left:50%;transform:translateX(-50%) translateY(-6px);min-width:270px;background:var(--c2);border:1px solid var(--b);border-top:2px solid var(--y);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;box-shadow:0 16px 48px rgba(0,0,0,.7);}
+.dw:hover .dp{opacity:1;pointer-events:all;transform:translateX(-50%) translateY(0);}
+.dp a{display:flex;align-items:center;gap:10px;padding:11px 18px;font-family:var(--fu);font-size:.78rem;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--g);text-decoration:none;border-bottom:1px solid var(--b2);transition:background .18s,color .18s;}
+.dp a:last-child{border-bottom:none;}
+.dp a::after{display:none;}
+.dp a:hover{background:rgba(245,197,24,.08);color:var(--y);}
+.dp-dash{width:14px;height:2px;background:var(--y);opacity:.4;flex-shrink:0;}
+.dp a:hover .dp-dash{opacity:1;}
+.n-cta{background:var(--y)!important;color:var(--c)!important;font-weight:700!important;padding:9px 22px!important;border-left:none!important;}
+.n-cta:hover{background:var(--y2)!important;}
+.ham{display:none;flex-direction:column;gap:4px;background:none;border:none;cursor:pointer;padding:4px;}
+.ham span{width:24px;height:2px;background:var(--w);display:block;transition:all .3s;}
+.mm{display:none;position:fixed;inset:66px 0 0;background:var(--c2);z-index:8999;padding:32px 5%;overflow-y:auto;border-top:1px solid var(--b);}
+.mm.open{display:block;}
+.mm a,.mm button{display:block;width:100%;font-family:var(--fh);font-size:1.1rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--w);background:none;border:none;padding:14px 0;text-align:left;cursor:pointer;text-decoration:none;border-bottom:1px solid var(--b2);transition:color .2s;}
+.mm a:hover,.mm button:hover{color:var(--y);}
+.mm-sub{font-size:.85rem!important;color:var(--g)!important;padding-left:14px!important;}
+
+/* ── HELPERS ── */
+.sec{padding:110px 5%;}
+.badge{display:inline-flex;align-items:center;gap:8px;font-family:var(--fu);font-size:.68rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--y);border:1px solid var(--b);padding:4px 12px;margin-bottom:16px;}
+.badge::before{content:'▸';font-size:.6rem;}
+h1{font-family:var(--fh);font-size:clamp(3.2rem,8vw,7.5rem);line-height:.93;letter-spacing:1px;text-transform:uppercase;}
+h2{font-family:var(--fh);font-size:clamp(2rem,5vw,4.5rem);line-height:1;text-transform:uppercase;letter-spacing:.5px;}
+h3{font-family:var(--fh);font-size:1.3rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;}
+p{color:var(--g);line-height:1.8;font-size:.93rem;font-weight:300;}
+.yel{color:var(--y);}
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:var(--fu);font-size:.82rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:13px 28px;cursor:pointer;text-decoration:none;transition:all .25s var(--e);border:none;}
+.btn-y{background:var(--y);color:var(--c);}
+.btn-y:hover{background:var(--y2);transform:translateY(-2px);box-shadow:0 8px 28px rgba(245,197,24,.3);}
+.btn-w{background:transparent;color:var(--w);border:1px solid var(--b3);}
+.btn-w:hover{border-color:var(--y);color:var(--y);}
+.btn-c{background:var(--c);color:var(--y);}
+.btn-c:hover{background:var(--c3);transform:translateY(-2px);}
+.rule{height:2px;background:linear-gradient(90deg,var(--y),rgba(245,197,24,.1),transparent);}
+
+/* ══════════════════════════════════
+   HOME HERO
+══════════════════════════════════ */
+.hero{min-height:100vh;position:relative;overflow:hidden;display:flex;align-items:flex-end;padding:100px 5% 80px;}
+.hero-img{position:absolute;inset:0;}
+.hero-img img{width:100%;height:100%;object-fit:cover;filter:brightness(.38) saturate(.6);}
+.hero-img::after{content:'';position:absolute;inset:0;background:linear-gradient(to right,rgba(20,20,20,.97) 35%,rgba(20,20,20,.5) 70%,rgba(20,20,20,.1) 100%);}
+.hero-grid{position:absolute;inset:0;background-image:repeating-linear-gradient(0deg,transparent,transparent 79px,rgba(245,197,24,.04) 80px),repeating-linear-gradient(90deg,transparent,transparent 79px,rgba(245,197,24,.04) 80px);pointer-events:none;}
+.hero-wm{position:absolute;right:-3%;bottom:-8%;font-family:var(--fh);font-size:34vw;color:rgba(245,197,24,.035);line-height:1;pointer-events:none;user-select:none;}
+.hero-content{position:relative;max-width:840px;}
+.hero-pre{font-family:var(--fb);font-size:.7rem;font-weight:300;letter-spacing:6px;text-transform:uppercase;color:var(--y);margin-bottom:20px;display:flex;align-items:center;gap:14px;}
+.hero-pre::before{content:'';width:40px;height:1px;background:var(--y);}
+.hero h1{margin-bottom:28px;}
+.hero-lead{font-size:1rem;max-width:460px;margin-bottom:48px;color:rgba(240,237,230,.6);font-weight:300;line-height:1.85;}
+.hero-btns{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:72px;}
+.hero-stats{display:flex;flex-wrap:wrap;gap:0;border-top:1px solid rgba(245,197,24,.2);padding-top:40px;}
+.hs{padding:0 48px 0 0;border-right:1px solid rgba(245,197,24,.15);margin-right:48px;}
+.hs:last-child{border-right:none;padding-right:0;margin-right:0;}
+.hs-val{font-family:var(--fh);font-size:2.8rem;color:var(--y);line-height:1;}
+.hs-lbl{font-family:var(--fu);font-size:.65rem;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--g);margin-top:4px;}
+/* Floating badge top right */
+.hero-cert{position:absolute;top:24px;right:5%;background:var(--y);color:var(--c);font-family:var(--fu);font-size:.68rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:8px 16px;}
+
+/* ── Ticker ── */
+.ticker{background:var(--y);padding:13px 0;overflow:hidden;display:flex;}
+.t-track{display:flex;gap:56px;animation:tickAnim 22s linear infinite;white-space:nowrap;}
+@keyframes tickAnim{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.t-i{font-family:var(--fh);font-size:.75rem;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--c);display:flex;align-items:center;gap:14px;flex-shrink:0;}
+.t-i::before{content:'●';font-size:.45rem;}
+
+/* ── About strip ── */
+.astrip{display:grid;grid-template-columns:1fr 1fr;min-height:560px;}
+.astrip-img{position:relative;overflow:hidden;}
+.astrip-img img{width:100%;height:100%;object-fit:cover;filter:brightness(.65) saturate(.8);}
+.astrip-img::after{content:'';position:absolute;inset:0;background:linear-gradient(to right,transparent 40%,var(--c2) 100%);}
+.astrip-img-tag{position:absolute;bottom:28px;left:28px;font-family:var(--fh);font-size:3rem;color:rgba(245,197,24,.15);line-height:1;text-transform:uppercase;z-index:1;}
+.astrip-body{background:var(--c2);padding:80px 60px;display:flex;flex-direction:column;justify-content:center;gap:20px;border-left:2px solid var(--y);}
+.astrip-list{list-style:none;display:flex;flex-direction:column;gap:12px;margin:8px 0;}
+.astrip-list li{font-family:var(--fb);font-size:.9rem;color:rgba(240,237,230,.7);display:flex;align-items:center;gap:12px;font-weight:300;}
+.astrip-list li::before{content:'';width:20px;height:2px;background:var(--y);flex-shrink:0;}
+
+/* ── Mosaic ── */
+.mosaic{display:grid;grid-template-columns:2fr 1fr 1fr;grid-template-rows:300px;gap:3px;}
+.mos{overflow:hidden;position:relative;cursor:pointer;}
+.mos img{width:100%;height:100%;object-fit:cover;transition:transform .65s var(--e);filter:brightness(.7) saturate(.75);}
+.mos:hover img{transform:scale(1.07);filter:brightness(.9) saturate(1);}
+.mos-lbl{position:absolute;bottom:0;left:0;right:0;padding:14px 18px;background:linear-gradient(to top,rgba(20,20,20,.85),transparent);font-family:var(--fh);font-size:.72rem;letter-spacing:3px;text-transform:uppercase;color:var(--y);}
+
+/* ── Stats row ── */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:0;background:rgba(245,197,24,.06);}
+.sr-cell{padding:52px 40px;border-right:1px solid var(--b2);transition:background .2s;}
+.sr-cell:last-child{border-right:none;}
+.sr-cell:hover{background:var(--c2);}
+.sr-val{font-family:var(--fh);font-size:3.2rem;color:var(--y);line-height:1;margin-bottom:8px;}
+.sr-title{font-family:var(--fu);font-size:.72rem;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:var(--w);margin-bottom:6px;}
+.sr-desc{font-size:.84rem;}
+
+/* ── Services grid ── */
+.svc-head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:56px;flex-wrap:wrap;gap:20px;}
+.svc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;background:rgba(245,197,24,.05);}
+.sc{background:var(--c2);overflow:hidden;cursor:pointer;transition:background .25s;position:relative;}
+.sc:hover{background:var(--c3);}
+.sc::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--y);transform:scaleY(0);transition:transform .3s;transform-origin:bottom;}
+.sc:hover::before{transform:scaleY(1);}
+.sc-img{height:196px;overflow:hidden;position:relative;}
+.sc-img img{width:100%;height:100%;object-fit:cover;transition:transform .55s var(--e);filter:brightness(.8);}
+.sc:hover .sc-img img{transform:scale(1.07);filter:brightness(.95);}
+.sc-img::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,var(--c2) 0%,transparent 55%);transition:background .25s;}
+.sc:hover .sc-img::after{background:linear-gradient(to top,var(--c3) 0%,transparent 55%);}
+.sc-body{padding:28px 30px 36px;}
+.sc-num{font-family:var(--fh);font-size:4rem;color:rgba(245,197,24,.1);line-height:1;margin-bottom:8px;}
+.sc h3{font-size:1.05rem;margin-bottom:8px;color:var(--w);}
+.sc p{font-size:.84rem;}
+.sc-arrow{margin-top:16px;font-family:var(--fu);font-size:.72rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--y);opacity:0;transition:opacity .25s;display:flex;align-items:center;gap:6px;}
+.sc:hover .sc-arrow{opacity:1;}
+
+/* ── Process ── */
+.proc-row{display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative;background:var(--c2);}
+.proc-row::before{content:'';position:absolute;top:55px;left:12.5%;right:12.5%;height:1px;background:linear-gradient(90deg,var(--y),rgba(245,197,24,.1));}
+.proc-step{display:flex;flex-direction:column;align-items:center;text-align:center;padding:56px 28px;}
+.proc-num{width:72px;height:72px;border:2px solid var(--y);color:var(--y);font-family:var(--fh);font-size:1.8rem;display:flex;align-items:center;justify-content:center;margin-bottom:24px;position:relative;z-index:1;transition:all .25s;flex-shrink:0;}
+.proc-step:hover .proc-num{background:var(--y);color:var(--c);}
+.proc-step h3{font-size:1rem;margin-bottom:10px;color:var(--w);}
+.proc-step p{font-size:.84rem;}
+
+/* ── CTA band ── */
+.cta-band{display:grid;grid-template-columns:1fr 1fr;}
+.cta-img{position:relative;min-height:440px;overflow:hidden;}
+.cta-img img{width:100%;height:100%;object-fit:cover;filter:brightness(.5) saturate(.7);}
+.cta-img::after{content:'';position:absolute;inset:0;background:linear-gradient(to right,transparent 40%,var(--c3) 100%);}
+.cta-body{background:var(--c3);padding:80px 60px;display:flex;flex-direction:column;justify-content:center;gap:22px;border-left:2px solid var(--y);}
+.cta-body .badge{margin-bottom:0;}
+.cta-feats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:8px 0;}
+.cta-feat{font-family:var(--fb);font-size:.84rem;color:rgba(240,237,230,.7);display:flex;align-items:center;gap:8px;font-weight:300;}
+.cta-feat::before{content:'✓';color:var(--y);}
+.cta-btns{display:flex;gap:12px;flex-wrap:wrap;}
+
+/* ══════════════════════════════════
+   PAGE HERO
+══════════════════════════════════ */
+.ph{min-height:50vh;display:flex;flex-direction:column;justify-content:flex-end;padding:110px 5% 60px;position:relative;overflow:hidden;}
+.ph-img{position:absolute;inset:0;}
+.ph-img img{width:100%;height:100%;object-fit:cover;filter:brightness(.3) saturate(.6);}
+.ph-img::after{content:'';position:absolute;inset:0;background:linear-gradient(to right,rgba(20,20,20,.95) 30%,rgba(20,20,20,.4) 100%);}
+.ph-content{position:relative;}
+.ph-content h1{color:var(--w);margin-top:12px;margin-bottom:16px;}
+.ph-content p{max-width:520px;font-size:1rem;}
+/* Yellow accent line on left edge */
+.ph::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(to bottom,var(--y),transparent);}
+
+/* ══════════════════════════════════
+   ABOUT PAGE
+══════════════════════════════════ */
+.mission-grid{display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:start;}
+.mission-img{border-radius:0;overflow:hidden;height:380px;position:relative;}
+.mission-img img{width:100%;height:100%;object-fit:cover;filter:brightness(.75) saturate(.8);}
+.mission-img-label{position:absolute;bottom:0;left:0;right:0;padding:20px 24px;background:linear-gradient(to top,rgba(20,20,20,.85),transparent);font-family:var(--fh);font-size:1.3rem;letter-spacing:2px;text-transform:uppercase;color:var(--y);}
+.val-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;background:rgba(245,197,24,.05);}
+.val-card{background:var(--c2);padding:36px 28px;transition:background .2s;position:relative;}
+.val-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--y);transform:scaleX(0);transition:transform .3s;}
+.val-card:hover{background:var(--c3);}
+.val-card:hover::after{transform:scaleX(1);}
+.val-icon{font-size:2rem;margin-bottom:16px;}
+.val-card h3{font-size:.95rem;margin-bottom:8px;color:var(--y);}
+.val-card p{font-size:.84rem;}
+.team-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;background:rgba(245,197,24,.05);}
+.team-card{background:var(--c2);overflow:hidden;transition:background .2s;}
+.team-card:hover{background:var(--c3);}
+.team-photo{height:256px;overflow:hidden;position:relative;}
+.team-photo img{width:100%;height:100%;object-fit:cover;filter:grayscale(30%) brightness(.85);transition:filter .3s,transform .4s;}
+.team-card:hover .team-photo img{filter:grayscale(0%) brightness(1);transform:scale(1.04);}
+.team-photo::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(28,28,28,.9) 0%,transparent 55%);}
+.team-info{padding:20px 22px;}
+.team-name{font-family:var(--fh);font-size:1.1rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--w);}
+.team-role{font-family:var(--fu);font-size:.72rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--y);margin-top:4px;}
+.tl-wrap{display:flex;flex-direction:column;gap:0;padding-left:36px;position:relative;}
+.tl-wrap::before{content:'';position:absolute;left:0;top:8px;bottom:8px;width:2px;background:linear-gradient(to bottom,var(--y),rgba(245,197,24,.1));}
+.tl-entry{position:relative;padding-bottom:44px;}
+.tl-entry::before{content:'';position:absolute;left:-41px;top:8px;width:10px;height:10px;background:var(--y);}
+.tl-yr{font-family:var(--fh);font-size:2.2rem;color:var(--y);line-height:1;}
+.tl-title{font-family:var(--fh);font-size:1rem;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--w);margin:6px 0 4px;}
+.tl-desc{font-size:.86rem;}
+.num-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;background:rgba(245,197,24,.05);}
+.num-tile{background:var(--c2);padding:32px 28px;transition:background .2s;}
+.num-tile:hover{background:var(--c3);}
+.nt-val{font-family:var(--fh);font-size:3rem;color:var(--y);line-height:1;margin-bottom:6px;}
+.nt-lbl{font-family:var(--fu);font-size:.7rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--g);}
+
+/* ══════════════════════════════════
+   SERVICES PAGE
+══════════════════════════════════ */
+.big-svc-grid{display:grid;grid-template-columns:1fr 1fr;gap:3px;background:rgba(245,197,24,.05);}
+.bsc{background:var(--c2);overflow:hidden;cursor:pointer;transition:background .25s;}
+.bsc:hover{background:var(--c3);}
+.bsc-img{height:260px;overflow:hidden;position:relative;}
+.bsc-img img{width:100%;height:100%;object-fit:cover;transition:transform .55s var(--e);filter:brightness(.75);}
+.bsc:hover .bsc-img img{transform:scale(1.05);filter:brightness(.95);}
+.bsc-img::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,var(--c2) 0%,transparent 50%);transition:background .25s;}
+.bsc:hover .bsc-img::after{background:linear-gradient(to top,var(--c3) 0%,transparent 50%);}
+.bsc-body{padding:36px 40px 44px;}
+.bsc-num{font-family:var(--fh);font-size:5rem;color:rgba(245,197,24,.08);line-height:1;margin-bottom:8px;}
+.bsc-body h3{font-size:1.3rem;margin-bottom:10px;}
+.bsc-body p{font-size:.9rem;}
+.bsc-link{margin-top:18px;display:flex;align-items:center;gap:6px;font-family:var(--fu);font-size:.75rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--y);}
+
+/* ══════════════════════════════════
+   SERVICE DETAIL
+══════════════════════════════════ */
+.sd-layout{display:grid;grid-template-columns:2fr 1fr;gap:72px;}
+.sd-content h3{font-size:1.2rem;margin-bottom:14px;color:var(--w);}
+.sd-content p{margin-bottom:18px;font-size:.95rem;}
+.sd-img{overflow:hidden;height:280px;margin:36px 0;position:relative;}
+.sd-img img{width:100%;height:100%;object-fit:cover;filter:brightness(.75);}
+.sd-img::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--y);z-index:1;}
+.feat-list{list-style:none;display:flex;flex-direction:column;gap:12px;margin:28px 0;}
+.feat-list li{display:flex;align-items:flex-start;gap:12px;font-size:.92rem;color:var(--ow);font-family:var(--fb);font-weight:300;}
+.feat-list li::before{content:'';width:18px;height:2px;background:var(--y);margin-top:11px;flex-shrink:0;}
+.sd-sidebar{display:flex;flex-direction:column;gap:20px;}
+.sb-panel{background:var(--c2);border:1px solid var(--b2);padding:26px;border-top:2px solid var(--y);}
+.sb-panel h3{font-family:var(--fu);font-size:.72rem;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--y);margin-bottom:16px;}
+.sp-list{list-style:none;display:flex;flex-direction:column;gap:10px;}
+.sp-list li{font-size:.86rem;color:var(--g);padding-left:12px;border-left:2px solid rgba(245,197,24,.25);}
+.sb-img{overflow:hidden;height:180px;}
+.sb-img img{width:100%;height:100%;object-fit:cover;filter:brightness(.75);}
+.sb-cta{background:var(--y);padding:26px;}
+.sb-cta h3{color:var(--c);font-family:var(--fu);font-size:.82rem;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;}
+.sb-cta p{color:rgba(20,20,20,.7);font-size:.84rem;margin-bottom:18px;}
+.oc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;background:rgba(245,197,24,.05);margin-top:72px;}
+.oc-card{background:var(--c2);cursor:pointer;transition:background .2s;overflow:hidden;}
+.oc-card:hover{background:var(--c3);}
+.oc-img{height:150px;overflow:hidden;position:relative;}
+.oc-img img{width:100%;height:100%;object-fit:cover;transition:transform .4s;filter:brightness(.75);}
+.oc-card:hover .oc-img img{transform:scale(1.06);filter:brightness(.95);}
+.oc-img::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,var(--c2) 0%,transparent 55%);}
+.oc-card:hover .oc-img::after{background:linear-gradient(to top,var(--c3) 0%,transparent 55%);}
+.oc-body{padding:20px 22px;}
+.oc-body h3{font-size:.92rem;margin-bottom:6px;color:var(--w);}
+.oc-body p{font-size:.82rem;}
+
+/* ══════════════════════════════════
+   CONTACT
+══════════════════════════════════ */
+.contact-layout{display:grid;grid-template-columns:1fr 1.6fr;gap:72px;align-items:start;}
+.contact-panel{background:var(--c2);border-top:2px solid var(--y);padding:40px;}
+.ci-item{margin-bottom:24px;}
+.ci-lbl{font-family:var(--fu);font-size:.68rem;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--y);margin-bottom:6px;}
+.ci-val{font-size:.92rem;color:var(--ow);line-height:1.7;font-weight:300;}
+.ci-hr{height:1px;background:var(--b2);margin:18px 0;}
+.soc-row{display:flex;gap:8px;margin-top:10px;}
+.soc-btn{width:36px;height:36px;border:1px solid var(--b2);display:flex;align-items:center;justify-content:center;color:var(--g);cursor:pointer;text-decoration:none;font-size:.9rem;transition:all .2s;}
+.soc-btn:hover{border-color:var(--y);color:var(--y);background:rgba(245,197,24,.08);}
+.office-img{overflow:hidden;height:200px;margin-top:20px;position:relative;}
+.office-img img{width:100%;height:100%;object-fit:cover;filter:brightness(.65) saturate(.7);}
+.office-img-lbl{position:absolute;bottom:0;left:0;right:0;padding:14px 18px;background:linear-gradient(to top,rgba(20,20,20,.85),transparent);font-family:var(--fh);font-size:.7rem;letter-spacing:3px;text-transform:uppercase;color:var(--y);}
+.form-panel{background:var(--c2);border-top:2px solid var(--y);padding:40px;}
+.form-head{font-family:var(--fh);font-size:1.6rem;letter-spacing:2px;text-transform:uppercase;color:var(--w);margin-bottom:28px;}
+.cform{display:flex;flex-direction:column;gap:18px;}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.field{display:flex;flex-direction:column;gap:7px;}
+.field label{font-family:var(--fu);font-size:.68rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--g);}
+.field input,.field textarea,.field select{background:var(--c3);border:1px solid var(--b2);color:var(--w);padding:12px 16px;font-family:var(--fb);font-size:.9rem;font-weight:300;outline:none;resize:vertical;transition:border-color .2s;-webkit-appearance:none;border-radius:0;}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--y);background:var(--c4);}
+.field select option{background:var(--c2);}
+.form-foot{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+.form-note{font-size:.78rem;color:var(--g2);}
+.fsuccess{background:rgba(245,197,24,.1);border:1px solid rgba(245,197,24,.3);padding:14px 18px;display:none;font-family:var(--fu);font-size:.88rem;font-weight:600;letter-spacing:1px;color:var(--y);align-items:center;gap:10px;}
+.fsuccess.show{display:flex;}
+.map-section{margin-top:72px;overflow:hidden;height:320px;position:relative;}
+.map-section img{width:100%;height:100%;object-fit:cover;filter:grayscale(80%) brightness(.5) sepia(.3);}
+.map-section::after{content:'';position:absolute;inset:0;background:rgba(20,20,20,.4);}
+.map-pin{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;z-index:1;}
+.map-pin .pin{font-size:2.8rem;}
+.map-pin p{font-family:var(--fu);font-size:.72rem;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--y);margin-top:8px;text-shadow:0 1px 6px rgba(0,0,0,.7);}
+/* Yellow border accent */
+.map-section::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--y);z-index:2;}
+
+/* ══════════════════════════════════
+   FOOTER
+══════════════════════════════════ */
+footer{background:var(--c2);border-top:2px solid var(--y);padding:72px 5% 36px;}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:56px;margin-bottom:56px;}
+.fbrand-desc{font-size:.86rem;color:var(--g);margin-top:16px;max-width:250px;line-height:1.7;font-weight:300;}
+.fcol h4{font-family:var(--fu);font-size:.68rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--y);margin-bottom:20px;}
+.fcol ul{list-style:none;display:flex;flex-direction:column;gap:10px;}
+.fcol ul li a,.fcol ul li button{font-size:.85rem;color:var(--g);text-decoration:none;background:none;border:none;cursor:pointer;font-family:var(--fb);font-weight:300;transition:color .2s;padding:0;}
+.fcol ul li a:hover,.fcol ul li button:hover{color:var(--y);}
+.footer-btm{border-top:1px solid var(--b2);padding-top:28px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+.footer-btm p{font-size:.78rem;color:var(--g2);}
+.footer-btm span{color:var(--y);}
+
+/* ══════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════ */
+@media(max-width:1100px){
+  .astrip,.cta-band{grid-template-columns:1fr;}
+  .astrip-img,.cta-img{height:320px;}
+  .mission-grid{grid-template-columns:1fr;gap:48px;}
+  .val-grid,.team-grid{grid-template-columns:repeat(2,1fr);}
+  .stats-row{grid-template-columns:repeat(2,1fr);}
+  .sr-cell{border-bottom:1px solid var(--b2);}
+  .footer-grid{grid-template-columns:1fr 1fr;gap:36px;}
+  .sd-layout,.contact-layout{grid-template-columns:1fr;gap:48px;}
+  .big-svc-grid{grid-template-columns:1fr;}
+  .mosaic{grid-template-columns:1fr 1fr 1fr;grid-template-rows:220px;}
+}
+@media(max-width:768px){
+  nav .nl{display:none;}
+  .ham{display:flex;}
+  .svc-grid,.big-svc-grid{grid-template-columns:1fr;}
+  .oc-grid{grid-template-columns:1fr 1fr;}
+  .val-grid,.team-grid{grid-template-columns:1fr;}
+  .stats-row{grid-template-columns:1fr 1fr;}
+  .proc-row{grid-template-columns:1fr 1fr;gap:0;}
+  .proc-row::before{display:none;}
+  .footer-grid{grid-template-columns:1fr;}
+  .num-grid{grid-template-columns:1fr 1fr;}
+  .frow{grid-template-columns:1fr;}
+  .hero-stats{flex-direction:column;gap:24px;}
+  .hs{border-right:none;padding-right:0;margin-right:0;}
+  .mosaic{grid-template-columns:1fr 1fr;grid-template-rows:auto;}
+  .mosaic .mos:first-child{grid-column:span 2;height:200px;}
+  .mosaic .mos{height:160px;}
+}
+@media(max-width:480px){
+  .oc-grid{grid-template-columns:1fr;}
+  .num-grid{grid-template-columns:1fr;}
+  .team-grid{grid-template-columns:1fr 1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nb" onclick="vg('home')">
+    <div class="nb-box">V</div>
+    <div>
+      <div class="nb-name">Chalakkal</div>
+      <div class="nb-tag"> Group</div>
+    </div>
+  </div>
+  <ul class="nl" id="dnav">
+    <li><a href="#" onclick="vg('home');return false;" data-page="home">Home</a></li>
+    <li><a href="#" onclick="vg('about');return false;" data-page="about">About</a></li>
+    <li class="dw">
+      <button class="dd-tog" data-page="services" onclick="vg('services');return false;">
+        Services
+        <svg class="dchev" width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </button>
+      <div class="dp">
+        <a href="#" onclick="vg('v-freight');return false;"><span class="dp-dash"></span>Freight & Haulage</a>
+        <a href="#" onclick="vg('v-warehouse');return false;"><span class="dp-dash"></span>Warehousing & Storage</a>
+        <a href="#" onclick="vg('v-supply');return false;"><span class="dp-dash"></span>Supply Chain</a>
+        <a href="#" onclick="vg('v-lastmile');return false;"><span class="dp-dash"></span>Last Mile Delivery</a>
+        <a href="#" onclick="vg('v-customs');return false;"><span class="dp-dash"></span>Customs & Compliance</a>
+        <a href="#" onclick="vg('v-cold');return false;"><span class="dp-dash"></span>Cold Chain Logistics</a>
+      </div>
+    </li>
+    <li><a href="#" onclick="vg('contact');return false;" data-page="contact">Contact</a></li>
+    <li><button class="n-cta btn" onclick="vg('contact');return false;">Get Quote</button></li>
+  </ul>
+  <button class="ham" onclick="togMm()"><span></span><span></span><span></span></button>
+</nav>
+
+<!-- Mobile nav -->
+<div class="mm" id="mobnav">
+  <a href="#" onclick="vg('home');togMm();return false;">Home</a>
+  <a href="#" onclick="vg('about');togMm();return false;">About</a>
+  <a href="#" onclick="vg('services');togMm();return false;">Services</a>
+  <a href="#" class="mm-sub" onclick="vg('v-freight');togMm();return false;">↳ Freight & Haulage</a>
+  <a href="#" class="mm-sub" onclick="vg('v-warehouse');togMm();return false;">↳ Warehousing & Storage</a>
+  <a href="#" class="mm-sub" onclick="vg('v-supply');togMm();return false;">↳ Supply Chain</a>
+  <a href="#" class="mm-sub" onclick="vg('v-lastmile');togMm();return false;">↳ Last Mile Delivery</a>
+  <a href="#" class="mm-sub" onclick="vg('v-customs');togMm();return false;">↳ Customs & Compliance</a>
+  <a href="#" class="mm-sub" onclick="vg('v-cold');togMm();return false;">↳ Cold Chain Logistics</a>
+  <a href="#" onclick="vg('contact');togMm();return false;">Contact</a>
+</div>
+
+<!-- ═══════════════ HOME ═══════════════ -->
+<div id="page-home" class="page">
+
+  <section class="hero">
+    <div class="hero-img"><img src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=1800&auto=format&q=80" alt="Container port"/></div>
+    <div class="hero-grid"></div>
+    <div class="hero-wm">VG</div>
+    <div class="hero-cert">ISO 9001 Certified</div>
+    <div class="hero-content">
+      <div class="hero-pre">Industrial Logistics Since 2000</div>
+      <h1>Heavy Loads.<br><span class="yel">Zero</span><br>Compromises.</h1>
+      <p class="hero-lead">Chalakkal Group moves the hardest cargo across the toughest corridors — with raw industrial power and precision that industry giants rely on.</p>
+      <div class="hero-btns">
+        <button class="btn btn-y" onclick="vg('services')">Our Services →</button>
+        <button class="btn btn-w" onclick="vg('contact')">Request a Quote</button>
+      </div>
+      <div class="hero-stats">
+        <div class="hs"><div class="hs-val">24+</div><div class="hs-lbl">Years Operating</div></div>
+        <div class="hs"><div class="hs-val">120+</div><div class="hs-lbl">Countries</div></div>
+        <div class="hs"><div class="hs-val">55K+</div><div class="hs-lbl">Annual Shipments</div></div>
+        <div class="hs"><div class="hs-val">99.3%</div><div class="hs-lbl">On-Time Rate</div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="ticker">
+    <div class="t-track">
+      <span class="t-i">Freight & Haulage</span><span class="t-i">Warehousing & Storage</span><span class="t-i">Supply Chain</span><span class="t-i">Last Mile Delivery</span><span class="t-i">Customs & Compliance</span><span class="t-i">Cold Chain Logistics</span>
+      <span class="t-i">Freight & Haulage</span><span class="t-i">Warehousing & Storage</span><span class="t-i">Supply Chain</span><span class="t-i">Last Mile Delivery</span><span class="t-i">Customs & Compliance</span><span class="t-i">Cold Chain Logistics</span>
+    </div>
+  </div>
+
+  <!-- About strip -->
+  <div class="astrip">
+    <div class="astrip-img">
+      <img src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=900&auto=format&q=80" alt="VEGA trucks"/>
+      <div class="astrip-img-tag">VEGA</div>
+    </div>
+    <div class="astrip-body">
+      <div class="badge">Who We Are</div>
+      <h2>Industrial Power.<br><span class="yel">Global Reach.</span></h2>
+      <p>Founded in 2000, Chalakkal Group built its reputation on moving what others won't — heavy project cargo, hazardous materials, oversized loads, and time-critical industrial freight across the most challenging global corridors.</p>
+      <ul class="astrip-list">
+        <li>24 years of heavy & industrial logistics</li>
+        <li>Owned fleet of 850+ vehicles and flatbeds</li>
+        <li>3,800+ freight professionals worldwide</li>
+        <li>Specialist project cargo & ODC division</li>
+        <li>24/7 operations command center</li>
+      </ul>
+      <button class="btn btn-y" onclick="vg('about')">Our Full Story →</button>
+    </div>
+  </div>
+
+  <!-- Mosaic -->
+  <div class="mosaic">
+    <div class="mos"><img src="https://images.unsplash.com/photo-1494412651409-8963ce7935a7?w=800&auto=format&q=80" alt="Cargo ship" loading="lazy"/><div class="mos-lbl">Sea Freight</div></div>
+    <div class="mos"><img src="https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&auto=format&q=80" alt="Air cargo" loading="lazy"/><div class="mos-lbl">Air Freight</div></div>
+    <div class="mos"><img src="https://images.unsplash.com/photo-1553413077-190dd305871c?w=500&auto=format&q=80" alt="Warehouse" loading="lazy"/><div class="mos-lbl">Warehousing</div></div>
+  </div>
+
+  <!-- Stats row -->
+  <div class="stats-row">
+    <div class="sr-cell"><div class="sr-val">850+</div><div class="sr-title">Fleet Vehicles</div><p class="sr-desc">Owned and maintained — trucks, flatbeds, reefers, and tankers.</p></div>
+    <div class="sr-cell"><div class="sr-val">2.6M</div><div class="sr-title">Sq Ft Warehouse</div><p class="sr-desc">Modern facilities across 16 strategic global locations.</p></div>
+    <div class="sr-cell"><div class="sr-val">3,800</div><div class="sr-title">Professionals</div><p class="sr-desc">Freight experts, operations engineers, and logistics planners.</p></div>
+    <div class="sr-cell"><div class="sr-val">120+</div><div class="sr-title">Countries Served</div><p class="sr-desc">Active delivery corridors across every major global trade lane.</p></div>
+  </div>
+
+  <!-- Services -->
+  <section class="sec">
+    <div class="svc-head">
+      <div>
+        <div class="badge">What We Do</div>
+        <h2>Six <span class="yel">Service</span> Lines</h2>
+      </div>
+      <button class="btn btn-w" onclick="vg('services')">All Services →</button>
+    </div>
+    <div class="svc-grid">
+      <div class="sc" onclick="vg('v-freight')">
+        <div class="sc-img"><img src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=600&auto=format&q=75" alt="Freight" loading="lazy"/></div>
+        <div class="sc-body"><div class="sc-num">01</div><h3>Freight & Haulage</h3><p>FTL, LTL, air, sea — multi-modal freight with industrial-grade capability.</p><div class="sc-arrow">View Service →</div></div>
+      </div>
+      <div class="sc" onclick="vg('v-warehouse')">
+        <div class="sc-img"><img src="https://images.unsplash.com/photo-1553413077-190dd305871c?w=600&auto=format&q=75" alt="Warehouse" loading="lazy"/></div>
+        <div class="sc-body"><div class="sc-num">02</div><h3>Warehousing & Storage</h3><p>Smart, secure warehousing with WMS-driven inventory management.</p><div class="sc-arrow">View Service →</div></div>
+      </div>
+      <div class="sc" onclick="vg('v-supply')">
+        <div class="sc-img"><img src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=600&auto=format&q=75" alt="Supply chain" loading="lazy"/></div>
+        <div class="sc-body"><div class="sc-num">03</div><h3>Supply Chain</h3><p>End-to-end supply chain strategy, execution, and performance management.</p><div class="sc-arrow">View Service →</div></div>
+      </div>
+      <div class="sc" onclick="vg('v-lastmile')">
+        <div class="sc-img"><img src="https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=600&auto=format&q=75" alt="Last mile" loading="lazy"/></div>
+        <div class="sc-body"><div class="sc-num">04</div><h3>Last Mile Delivery</h3><p>Urban and B2B final-leg delivery with real-time tracking and ePOD.</p><div class="sc-arrow">View Service →</div></div>
+      </div>
+      <div class="sc" onclick="vg('v-customs')">
+        <div class="sc-img"><img src="https://images.unsplash.com/photo-1578575437130-527eed3abbec?w=600&auto=format&q=75" alt="Customs" loading="lazy"/></div>
+        <div class="sc-body"><div class="sc-num">05</div><h3>Customs & Compliance</h3><p>Licensed brokerage across 50+ markets with automated filing and advisory.</p><div class="sc-arrow">View Service →</div></div>
+      </div>
+      <div class="sc" onclick="vg('v-cold')">
+        <div class="sc-img"><img src="https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=600&auto=format&q=75" alt="Cold chain" loading="lazy"/></div>
+        <div class="sc-body"><div class="sc-num">06</div><h3>Cold Chain Logistics</h3><p>GDP-certified temperature-controlled logistics from ambient to -80°C cryogenic.</p><div class="sc-arrow">View Service →</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Process -->
+  <div class="proc-row">
+    <div class="proc-step"><div class="proc-num">01</div><h3>Submit Cargo Details</h3><p>Tell us origin, destination, weight, and timeline through our portal or direct call.</p></div>
+    <div class="proc-step"><div class="proc-num">02</div><h3>Receive Quote</h3><p>Itemised, competitive quote in 2 hours — no hidden charges, full cost visibility.</p></div>
+    <div class="proc-step"><div class="proc-num">03</div><h3>We Execute</h3><p>VEGA handles everything: pickup, documentation, customs, routing, and tracking.</p></div>
+    <div class="proc-step"><div class="proc-num">04</div><h3>Delivered</h3><p>Confirmed delivery with ePOD, photo documentation, and post-shipment report.</p></div>
+  </div>
+
+  <!-- CTA band -->
+  <div class="cta-band">
+    <div class="cta-img"><img src="https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=900&auto=format&q=80" alt="Cargo aircraft" loading="lazy"/></div>
+    <div class="cta-body">
+      <div class="badge">Move With Chalakkal</div>
+      <h2>Ready to <span class="yel">Ship?</span></h2>
+      <p>Over 2,000 companies trust Chalakkal Group to keep their supply chains moving — whatever the cargo, wherever the destination.</p>
+      <div class="cta-feats">
+        <div class="cta-feat">Air, Sea & Road Freight</div><div class="cta-feat">Warehousing & 3PL</div>
+        <div class="cta-feat">Supply Chain Management</div><div class="cta-feat">Cold Chain Certified</div>
+        <div class="cta-feat">Customs Brokerage</div><div class="cta-feat">24/7 Operations</div>
+      </div>
+      <div class="cta-btns">
+        <button class="btn btn-y" onclick="vg('contact')">Request a Quote →</button>
+        <button class="btn btn-w" onclick="vg('services')">View Services</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-grid">
+      <div>
+        <div class="nb" style="cursor:default"><div class="nb-box">V</div><div><div class="nb-name">VEGA</div><div class="nb-tag">Freight Group</div></div></div>
+        <p class="fbrand-desc">Industrial logistics built on 24 years of hard-earned expertise across 120+ countries.</p>
+      </div>
+      <div class="fcol"><h4>Services</h4><ul>
+        <li><button onclick="vg('v-freight')">Freight & Haulage</button></li>
+        <li><button onclick="vg('v-warehouse')">Warehousing & Storage</button></li>
+        <li><button onclick="vg('v-supply')">Supply Chain</button></li>
+        <li><button onclick="vg('v-lastmile')">Last Mile Delivery</button></li>
+        <li><button onclick="vg('v-customs')">Customs & Compliance</button></li>
+        <li><button onclick="vg('v-cold')">Cold Chain Logistics</button></li>
+      </ul></div>
+      <div class="fcol"><h4>Company</h4><ul>
+        <li><button onclick="vg('home')">Home</button></li>
+        <li><button onclick="vg('about')">About Us</button></li>
+        <li><button onclick="vg('contact')">Contact Us</button></li>
+        <li><a href="#">Careers</a></li>
+      </ul></div>
+      <div class="fcol"><h4>Offices</h4><ul>
+        <li><a href="#">Kochi, Kerala (HQ)</a></li>
+        <li><a href="#">Calicut, Kerala</a></li>
+        <li><a href="#">Trivandrum, Kerala</a></li>
+        <li><a href="#">+91 1234567890</a></li>
+        <li><a href="#">ops@chalakkal.com</a></li>
+      </ul></div>
+    </div>
+    <div class="footer-btm"><p>© 2025 <span>Chalakkal Group</span>. All rights reserved.</p><p>Built for <span>industrial logistics</span>.</p></div>
+  </footer>
+</div>
+
+<!-- ═══════════════ ABOUT ═══════════════ -->
+<div id="page-about" class="page">
+  <div class="ph">
+    <div class="ph-img"><img src="https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1600&auto=format&q=80" alt="City"/></div>
+    <div class="ph-content"><div class="badge">Our Story</div><h1>About <span class="yel">Chalakkal</span><br> Group</h1><p>24 years of industrial logistics — built on reliability, scale, and the will to move what others won't.</p></div>
+  </div>
+
+  <section class="sec">
+    <div class="mission-grid">
+      <div>
+        <div class="badge">Mission</div>
+        <h2 style="margin-bottom:20px">Why We <span class="yel">Exist</span></h2>
+        <p style="margin-bottom:18px">Chalakkal Group was created to solve a problem that most logistics companies avoided — moving heavy, complex, and high-value industrial cargo efficiently and reliably. We started in 2000 with a fleet of 20 flatbed trucks and a contract to move oilfield equipment across the Gulf.</p>
+        <p style="margin-bottom:18px">Today we've grown into a full-spectrum logistics provider, but that industrial DNA runs through everything we do. We're the team called when the cargo is difficult, the deadline is tight, and the stakes are high.</p>
+        <div class="mission-img" style="margin-top:32px">
+          <img src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=900&auto=format&q=80" alt="Port" loading="lazy"/>
+          <div class="mission-img-label">kochi Operations</div>
+        </div>
+      </div>
+      <div>
+        <div class="badge">Vision</div>
+        <h2 style="margin-bottom:20px">Building the <span class="yel">Future</span></h2>
+        <p style="margin-bottom:18px">We're investing in the next generation of industrial logistics: hydrogen-powered HGVs, autonomous warehouse systems, and AI-driven route planning that adapts in real time to traffic, weather, and border conditions.</p>
+        <p style="margin-bottom:18px">Our target: 40% emissions reduction by 2030 through a combination of fleet electrification, renewable-energy warehouses, and carbon-offset partnerships.</p>
+        <div class="mission-img" style="margin-top:32px">
+          <img src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=900&auto=format&q=80" alt="Fleet" loading="lazy"/>
+          <div class="mission-img-label"> Heavy Freight Fleet</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div style="height:400px;overflow:hidden;position:relative;">
+    <img style="width:100%;height:100%;object-fit:cover;filter:brightness(.35) saturate(.6);" src="https://images.unsplash.com/photo-1553413077-190dd305871c?w=1800&auto=format&q=80" alt="Warehouse scale" loading="lazy"/>
+    <div style="position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--y);"></div>
+    <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center;padding:0 5%;">
+      <div class="badge" style="margin-bottom:0">Our Scale</div>
+      <h2>2.6 Million Sq Ft of <span class="yel">Industrial</span> Warehouse Space</h2>
+      <p style="color:rgba(240,237,230,.6);max-width:500px">Strategically positioned facilities across 16 countries, all running on our cloud WMS platform.</p>
+    </div>
+  </div>
+
+  <div class="rule"></div>
+
+  <section class="sec">
+    <div class="badge">Core Values</div>
+    <h2 style="margin-bottom:48px">What Drives <span class="yel">Chalakkal</span></h2>
+    <div class="val-grid">
+      <div class="val-card"><div class="val-icon">⚙️</div><h3>Industrial Precision</h3><p>Heavy cargo demands exactness. We build precision into every operation — from load calculations to customs filing.</p></div>
+      <div class="val-card"><div class="val-icon">🔒</div><h3>Reliability</h3><p>24 years of showing up. Our 99.3% on-time delivery rate isn't a target — it's our track record.</p></div>
+      <div class="val-card"><div class="val-icon">🌱</div><h3>Sustainability</h3><p>Responsible heavy logistics. We're cutting emissions through fleet renewal, green warehouses, and carbon tracking.</p></div>
+      <div class="val-card"><div class="val-icon">🧩</div><h3>Problem Solving</h3><p>When the load is awkward, the route is complex, or the timeline is impossible — VEGA finds a way.</p></div>
+    </div>
+  </section>
+
+  <div class="rule"></div>
+
+  <section class="sec">
+    <div class="badge">Leadership</div>
+    <h2 style="margin-bottom:40px">The Team Behind <span class="yel">Chalakkal</span></h2>
+    <div class="team-grid">
+      <div class="team-card">
+        <div class="team-photo"><img src="" alt="Founder" loading="lazy"/></div>
+        <div class="team-info"><div class="team-name">Thomas</div><div class="team-role">Founder & CEO</div></div>
+      </div>
+      <div class="team-card">
+        <div class="team-photo"><img src="" alt="COO" loading="lazy"/></div>
+        <div class="team-info"><div class="team-name">Stephen</div><div class="team-role">Chief Operations Officer</div></div>
+      </div>
+      <div class="team-card">
+        <div class="team-photo"><img src="" alt="CTO" loading="lazy"/></div>
+        <div class="team-info"><div class="team-name">Anto</div><div class="team-role">Chief Technology Officer</div></div>
+      </div>
+      <div class="team-card">
+        <div class="team-photo"><img src="" alt="VP" loading="lazy"/></div>
+        <div class="team-info"><div class="team-name">Porinchu</div><div class="team-role">VP Heavy Freight</div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="rule"></div>
+
+  <section class="sec">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start">
+      <div>
+        <div class="badge">Timeline</div>
+        <h2 style="margin-bottom:40px">24 Years of <span class="yel">History</span></h2>
+        <div class="tl-wrap">
+          <div class="tl-entry"><div class="tl-yr">2000</div><div class="tl-title">Founded in Doha</div><div class="tl-desc">Started with 20 flatbeds and a contract to haul oilfield equipment in the Gulf.</div></div>
+          <div class="tl-entry"><div class="tl-yr">2005</div><div class="tl-title">Sea & Air Division</div><div class="tl-desc">Launched sea freight and air cargo divisions. First international corridor to Germany.</div></div>
+          <div class="tl-entry"><div class="tl-yr">2011</div><div class="tl-title">Warehouse Rollout</div><div class="tl-desc">Opened first bonded warehouse in Jebel Ali, Dubai. Capacity: 300,000 sq ft.</div></div>
+          <div class="tl-entry"><div class="tl-yr">2017</div><div class="tl-title">Cold Chain Launch</div><div class="tl-desc">Entered pharmaceutical cold chain logistics with GDP-certified facilities.</div></div>
+          <div class="tl-entry"><div class="tl-yr">2023</div><div class="tl-title">Tech & Green Fleet</div><div class="tl-desc">Deployed AI logistics platform. Launched 150 EV delivery vehicles across the GCC.</div></div>
+        </div>
+      </div>
+      <div>
+        <div class="badge">Metrics</div>
+        <h2 style="margin-bottom:40px">VEGA by the <span class="yel">Numbers</span></h2>
+        <div class="num-grid">
+          <div class="num-tile"><div class="nt-val">850+</div><div class="nt-lbl">Fleet Vehicles</div></div>
+          <div class="num-tile"><div class="nt-val">3,800</div><div class="nt-lbl">Professionals</div></div>
+          <div class="num-tile"><div class="nt-val">2.6M</div><div class="nt-lbl">Sq Ft Storage</div></div>
+          <div class="num-tile"><div class="nt-val">120+</div><div class="nt-lbl">Countries</div></div>
+          <div class="num-tile"><div class="nt-val">55K+</div><div class="nt-lbl">Shipments/yr</div></div>
+          <div class="num-tile"><div class="nt-val">99.3%</div><div class="nt-lbl">On-Time Rate</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="cta-band">
+    <div class="cta-img"><img src="https://images.unsplash.com/photo-1494412651409-8963ce7935a7?w=900&auto=format&q=80" alt="Cargo" loading="lazy"/></div>
+    <div class="cta-body">
+      <div class="badge">Partner With Us</div>
+      <h2>Work With <span class="yel">chalakkal</span></h2>
+      <p>Experience what 24 years of industrial logistics mastery looks like — from the first quote to the final delivery.</p>
+      <div class="cta-btns"><button class="btn btn-y" onclick="vg('contact')">Get In Touch →</button><button class="btn btn-w" onclick="vg('services')">Our Services</button></div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-grid">
+      <div><div class="nb" style="cursor:default"><div class="nb-box">V</div><div><div class="nb-name">Chalakkal</div><div class="nb-tag"> Group</div></div></div><p class="fbrand-desc">Industrial logistics built on 24 years of expertise across 120+ countries.</p></div>
+      <div class="fcol"><h4>Services</h4><ul><li><button onclick="vg('v-freight')">Freight & Haulage</button></li><li><button onclick="vg('v-warehouse')">Warehousing</button></li><li><button onclick="vg('v-supply')">Supply Chain</button></li><li><button onclick="vg('v-lastmile')">Last Mile</button></li><li><button onclick="vg('v-customs')">Customs</button></li><li><button onclick="vg('v-cold')">Cold Chain</button></li></ul></div>
+      <div class="fcol"><h4>Company</h4><ul><li><button onclick="vg('home')">Home</button></li><li><button onclick="vg('about')">About</button></li><li><button onclick="vg('contact')">Contact</button></li></ul></div>
+      <div class="fcol"><h4>Offices</h4><ul><li><a href="#">Kochi</a></li><li><a href="#">Calicut</a></li><li><a href="#">Trivandrum</a></li><li><a href="#">+91 1234567890</a></li></ul></div>
+    </div>
+    <div class="footer-btm"><p>© 2025 <span>VEGA Freight Group</span>. All rights reserved.</p></div>
+  </footer>
+</div>
+
+<!-- ═══════════════ SERVICES ═══════════════ -->
+<div id="page-services" class="page">
+  <div class="ph">
+    <div class="ph-img"><img src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=1600&auto=format&q=80" alt="Fleet"/></div>
+    <div class="ph-content"><div class="badge">What We Offer</div><h1>Our <span class="yel">Services</span></h1><p>Six industrial-grade service lines covering every logistics requirement — from heavy haulage to cold chain pharma.</p></div>
+  </div>
+  <section class="sec">
+    <div class="big-svc-grid">
+      <div class="bsc" onclick="vg('v-freight')">
+        <div class="bsc-img"><img src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=800&auto=format&q=75" alt="Freight" loading="lazy"/></div>
+        <div class="bsc-body"><div class="bsc-num">01</div><h3>Freight & Haulage</h3><p>Multi-modal freight spanning FTL/LTL road, express air, FCL/LCL sea — with heavy-lift and ODC capability across 120+ countries.</p><div class="bsc-link">Explore →</div></div>
+      </div>
+      <div class="bsc" onclick="vg('v-warehouse')">
+        <div class="bsc-img"><img src="https://images.unsplash.com/photo-1553413077-190dd305871c?w=800&auto=format&q=75" alt="Warehouse" loading="lazy"/></div>
+        <div class="bsc-body"><div class="bsc-num">02</div><h3>Warehousing & Storage</h3><p>2.6M sq ft of industrial storage with cloud WMS, cross-docking, pick-and-pack, and bonded free-zone options.</p><div class="bsc-link">Explore →</div></div>
+      </div>
+      <div class="bsc" onclick="vg('v-supply')">
+        <div class="bsc-img"><img src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&auto=format&q=75" alt="Supply chain" loading="lazy"/></div>
+        <div class="bsc-body"><div class="bsc-num">03</div><h3>Supply Chain</h3><p>4PL supply chain management, network modelling, vendor management, and real-time KPI tracking for industrial clients.</p><div class="bsc-link">Explore →</div></div>
+      </div>
+      <div class="bsc" onclick="vg('v-lastmile')">
+        <div class="bsc-img"><img src="https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=800&auto=format&q=75" alt="Last mile" loading="lazy"/></div>
+        <div class="bsc-body"><div class="bsc-num">04</div><h3>Last Mile Delivery</h3><p>Same-day, next-day, and B2B scheduled delivery with branded tracking pages and ePOD confirmation.</p><div class="bsc-link">Explore →</div></div>
+      </div>
+      <div class="bsc" onclick="vg('v-customs')">
+        <div class="bsc-img"><img src="https://images.unsplash.com/photo-1578575437130-527eed3abbec?w=800&auto=format&q=75" alt="Customs" loading="lazy"/></div>
+        <div class="bsc-body"><div class="bsc-num">05</div><h3>Customs & Compliance</h3><p>Licensed brokerage in 50+ markets with automated declarations, FTA advisory, AEO programme support.</p><div class="bsc-link">Explore →</div></div>
+      </div>
+      <div class="bsc" onclick="vg('v-cold')">
+        <div class="bsc-img"><img src="https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=800&auto=format&q=75" alt="Cold chain" loading="lazy"/></div>
+        <div class="bsc-body"><div class="bsc-num">06</div><h3>Cold Chain Logistics</h3><p>GDP-certified cold chain from +25°C ambient to -80°C cryogenic with continuous IoT monitoring and full batch traceability.</p><div class="bsc-link">Explore →</div></div>
+      </div>
+    </div>
+  </section>
+  <div class="cta-band">
+    <div class="cta-img"><img src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=900&auto=format&q=80" alt="Port" loading="lazy"/></div>
+    <div class="cta-body">
+      <div class="badge">Custom Solutions</div>
+      <h2>Need Something <span class="yel">Specific?</span></h2>
+      <p>Our freight engineers will design the right logistics solution — no off-the-shelf packages, no compromises.</p>
+      <div class="cta-btns"><button class="btn btn-y" onclick="vg('contact')">Talk to an Expert →</button></div>
+    </div>
+  </div>
+  <footer>
+    <div class="footer-grid">
+      <div><div class="nb" style="cursor:default"><div class="nb-box">V</div><div><div class="nb-name">chalakkal</div><div class="nb-tag"> Group</div></div></div><p class="fbrand-desc">Industrial logistics built on 24 years of expertise.</p></div>
+      <div class="fcol"><h4>Services</h4><ul><li><button onclick="vg('v-freight')">Freight & Haulage</button></li><li><button onclick="vg('v-warehouse')">Warehousing</button></li><li><button onclick="vg('v-supply')">Supply Chain</button></li><li><button onclick="vg('v-lastmile')">Last Mile</button></li><li><button onclick="vg('v-customs')">Customs</button></li><li><button onclick="vg('v-cold')">Cold Chain</button></li></ul></div>
+      <div class="fcol"><h4>Company</h4><ul><li><button onclick="vg('home')">Home</button></li><li><button onclick="vg('about')">About</button></li><li><button onclick="vg('contact')">Contact</button></li></ul></div>
+      <div class="fcol"><h4>Offices</h4><ul><li><a href="#">Calicut</a></li><li><a href="#">Kochi</a></li><li><a href="#">+91 1234567890</a></li></ul></div>
+    </div>
+    <div class="footer-btm"><p>© 2025 <span>Chalakkal Group</span>. All rights reserved.</p></div>
+  </footer>
+</div>
+
+<!-- Service detail placeholders (built by JS) -->
+<div id="page-v-freight"   class="page vsd"></div>
+<div id="page-v-warehouse" class="page vsd"></div>
+<div id="page-v-supply"    class="page vsd"></div>
+<div id="page-v-lastmile"  class="page vsd"></div>
+<div id="page-v-customs"   class="page vsd"></div>
+<div id="page-v-cold"      class="page vsd"></div>
+
+<!-- ═══════════════ CONTACT ═══════════════ -->
+<div id="page-contact" class="page">
+  <div class="ph">
+    <div class="ph-img"><img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1600&auto=format&q=80" alt="Offices"/></div>
+    <div class="ph-content"><div class="badge">Reach Us</div><h1>Get in <span class="yel">Touch</span></h1><p>Our operations team is available 24 hours a day, 7 days a week. We respond within 2 business hours.</p></div>
+  </div>
+
+  <section class="sec">
+    <div class="contact-layout">
+      <div>
+        <div class="badge">Our Offices</div>
+        <h3 style="font-size:1.6rem;margin-bottom:28px;color:var(--w)">Find Us</h3>
+        <div class="contact-panel">
+          <div class="ci-item"><div class="ci-lbl">Headquarters</div><div class="ci-val">CTS<br>Kochi</div></div>
+          <div class="ci-hr"></div>
+          <div class="ci-item"><div class="ci-lbl">Hub</div><div class="ci-val">Calicut<br>Kerala</div></div>
+          <div class="ci-hr"></div>
+          <div class="ci-item"><div class="ci-lbl">Phone</div><div class="ci-val">+91 1234567890</div></div>
+          <div class="ci-hr"></div>
+          <div class="ci-item"><div class="ci-lbl">Email</div><div class="ci-val">ops@chalafreight.com<br>quotes@chalafreight.com</div></div>
+          <div class="ci-hr"></div>
+          <div><div class="ci-lbl">Follow </div><div class="soc-row"><a class="soc-btn" href="#">in</a><a class="soc-btn" href="#">𝕏</a><a class="soc-btn" href="#">f</a><a class="soc-btn" href="#">▶</a></div></div>
+        </div>
+        <div class="office-img">
+          <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&auto=format&q=80" alt="Office" loading="lazy"/>
+          <div class="office-img-lbl"> Headquarters</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="badge">Send a Message</div>
+        <div class="form-panel">
+          <div class="form-head">Request a Quote</div>
+          <div class="cform">
+            <div class="frow">
+              <div class="field"><label>First Name *</label><input type="text" placeholder="First name" id="vfn"/></div>
+              <div class="field"><label>Last Name *</label><input type="text" placeholder="Last name" id="vln"/></div>
+            </div>
+            <div class="frow">
+              <div class="field"><label>Email *</label><input type="email" placeholder="you@company.com" id="vem"/></div>
+              <div class="field"><label>Phone</label><input type="tel" placeholder="+974 XXXX XXXX" id="vph"/></div>
+            </div>
+            <div class="field"><label>Company</label><input type="text" placeholder="Your company" id="vco"/></div>
+            <div class="field"><label>Service of Interest</label>
+              <select id="vsv">
+                <option value="">— Select a service —</option>
+                <option>Freight & Haulage</option><option>Warehousing & Storage</option>
+                <option>Supply Chain</option><option>Last Mile Delivery</option>
+                <option>Customs & Compliance</option><option>Cold Chain Logistics</option>
+                <option>General Enquiry</option>
+              </select>
+            </div>
+            <div class="field"><label>Message *</label><textarea rows="5" placeholder="Describe your cargo, route, timeline, or any questions..." id="vms"></textarea></div>
+            <div class="form-foot">
+              <span class="form-note">We respond within 2 business hours.</span>
+              <button class="btn btn-y" onclick="vSubmit()">Send Message →</button>
+            </div>
+            <div class="fsuccess" id="vfs">✓ Message received — our team will be in touch shortly.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="map-section">
+      <img src="https://images.unsplash.com/photo-1524661135-423995f22d0b?w=1600&auto=format&q=80" alt="Doha aerial" loading="lazy"/>
+      <div class="map-pin"><div class="pin">📍</div><p> HQ — Kerala, India</p></div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-grid">
+      <div><div class="nb" style="cursor:default"><div class="nb-box">V</div><div><div class="nb-name">Chalakkal</div><div class="nb-tag">Freight Group</div></div></div><p class="fbrand-desc">Industrial logistics built on 24 years of hard-earned expertise across 120+ countries.</p></div>
+      <div class="fcol"><h4>Services</h4><ul><li><button onclick="vg('v-freight')">Freight & Haulage</button></li><li><button onclick="vg('v-warehouse')">Warehousing & Storage</button></li><li><button onclick="vg('v-supply')">Supply Chain</button></li><li><button onclick="vg('v-lastmile')">Last Mile Delivery</button></li><li><button onclick="vg('v-customs')">Customs & Compliance</button></li><li><button onclick="vg('v-cold')">Cold Chain Logistics</button></li></ul></div>
+      <div class="fcol"><h4>Company</h4><ul><li><button onclick="vg('home')">Home</button></li><li><button onclick="vg('about')">About VEGA</button></li><li><button onclick="vg('contact')">Contact Us</button></li></ul></div>
+      <div class="fcol"><h4>Offices</h4><ul><li><a href="#">Kerala (HQ)</a></li><li><a href="#">Kochi</a></li><li><a href="#">Trivandrum</a></li><li><a href="#">+91 1234567890</a></li><li><a href="#">ops@vegafreight.com</a></li></ul></div>
+    </div>
+    <div class="footer-btm"><p>© 2025 <span>Chalakkal Group</span>. All rights reserved.</p><p>Built for <span>industrial logistics</span>.</p></div>
+  </footer>
+</div>
+
+<script>
+/* ── Navigation ── */
+const VPG=['home','about','services','v-freight','v-warehouse','v-supply','v-lastmile','v-customs','v-cold','contact'];
+function vg(p){
+  VPG.forEach(id=>{const el=document.getElementById('page-'+id);if(el)el.classList.remove('active');});
+  const t=document.getElementById('page-'+p);
+  if(t){t.classList.add('active');window.scrollTo({top:0,behavior:'instant'});}
+  document.querySelectorAll('[data-page]').forEach(el=>{
+    el.classList.remove('active');
+    if(el.dataset.page===p||(p.startsWith('v-')&&el.dataset.page==='services'))el.classList.add('active');
+  });
+}
+function togMm(){document.getElementById('mobnav').classList.toggle('open');}
+
+/* ── Service data ── */
+const VD={
+  'v-freight':{n:'01',t1:'Freight &',t2:'Haulage',hero:'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=1800&auto=format&q=80',m1:'https://images.unsplash.com/photo-1494412651409-8963ce7935a7?w=1000&auto=format&q=80',m2:'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1000&auto=format&q=80',sb:'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=500&auto=format&q=75',tag:'Freight & Haulage',tgl:'Multi-modal industrial freight — FTL/LTL, sea, and air — engineered for heavy and complex cargo at scale.',b1:'VEGA Freight operates a carrier-neutral multi-modal network covering road, sea, and air freight across 120+ countries. With a heavy-lift and ODC division, we handle cargo that others turn away — oversized, hazardous, high-value, and time-critical.',b2:'Our freight command centre monitors every shipment 24/7, with predictive re-routing triggered automatically when delays are detected — keeping your cargo on schedule even when conditions change.',fs:['FTL and LTL road freight with heavy-lift capability','Air freight — express next-day and economy economy options','Sea freight: FCL, LCL, breakbulk, and project cargo','ODC (Over-Dimensional Cargo) specialist division','Real-time GPS tracking and milestone alert system','Cargo insurance and multi-risk advisory included'],p1t:'Performance Metrics',p1i:['99.3% on-time delivery','2-hour quote response','Cargo cover up to $10M','300+ carrier partners','24/7 freight command centre'],p2t:'Freight Modes',p2i:['Road — FTL & LTL','Air — Express & Economy','Sea — FCL & LCL','Rail — Europe/Asia corridor','ODC/Project cargo'],ct:'Request Freight Quote',cd:'Get a competitive quote within 2 hours.',ot:['v-warehouse','v-supply','v-lastmile']},
+  'v-warehouse':{n:'02',t1:'Warehousing &',t2:'Storage',hero:'https://images.unsplash.com/photo-1553413077-190dd305871c?w=1800&auto=format&q=80',m1:'https://images.unsplash.com/photo-1591792111137-5b8219d5fad6?w=1000&auto=format&q=80',m2:'https://images.unsplash.com/photo-1553413077-190dd305871c?w=1000&auto=format&q=80',sb:'https://images.unsplash.com/photo-1553413077-190dd305871c?w=500&auto=format&q=75',tag:'Warehousing & Storage',tgl:'2.6 million sq ft of industrial warehouse space — smart, secure, and powered by our cloud WMS platform.',b1:'VEGA\'s warehouse network is built for industrial logistics: high-bay racking up to 16m, heavy floor loading ratings, bonded free-zone facilities, and full-spectrum temperature options. Every facility runs on our single WMS platform with real-time client dashboards.',b2:'Whether you need high-turnover e-commerce fulfillment or long-duration bonded storage for industrial goods, VEGA warehousing scales with your operation.',fs:['Dedicated and shared facilities with flexible terms','Cloud WMS with real-time inventory and order management','Pick-and-pack, kitting, labelling, value-add services','Cross-docking for fast-flow industrial cargo','Bonded and free-zone warehousing across 16 locations','High-bay racking to 16m, heavy floor loading capacity'],p1t:'Facility Specs',p1i:['2.6M sq ft total capacity','High-bay racking to 16m','Ambient, chilled & frozen','16 global locations','ISO 9001 certified'],p2t:'3PL Services',p2i:['Pick & pack fulfillment','Returns management','Kitting & assembly','Labelling & repackaging','Inventory analytics'],ct:'Storage Enquiry',cd:'Request a custom warehousing quote.',ot:['v-freight','v-supply','v-cold']},
+  'v-supply':{n:'03',t1:'Supply Chain',t2:'Management',hero:'https://images.unsplash.com/photo-1552664730-d307ca884978?w=1800&auto=format&q=80',m1:'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=1000&auto=format&q=80',m2:'https://images.unsplash.com/photo-1552664730-d307ca884978?w=1000&auto=format&q=80',sb:'https://images.unsplash.com/photo-1552664730-d307ca884978?w=500&auto=format&q=75',tag:'Supply Chain',tgl:'4PL supply chain management built for industrial complexity — from network design to continuous optimisation.',b1:'VEGA Supply Chain Management acts as your 4PL partner, taking full accountability for logistics performance across your entire supply network. We design, implement, and continuously improve your logistics infrastructure — delivering measurable cost, speed, and resilience outcomes.',b2:'Our supply chain engineers have deep expertise in oil & gas, energy, manufacturing, and FMCG sectors — designing networks that perform under real-world industrial pressure.',fs:['Supply chain network design and scenario modelling','Demand planning and inventory optimisation models','Vendor management and KPI scorecarding','4PL orchestration of all providers under one SLA','ERP, TMS and WMS integration services','Real-time executive dashboards and analytics'],p1t:'Typical Results',p1i:['Up to 35% cost reduction','30% lead time improvement','50% inventory reduction','Improved supply resilience','Full network transparency'],p2t:'Methodology',p2i:['Assess: audit current network','Design: model the optimum','Deploy: implement changes','Optimise: continuous KPI review'],ct:'Free Assessment',cd:'Book a 60-min supply chain health check.',ot:['v-freight','v-warehouse','v-customs']},
+  'v-lastmile':{n:'04',t1:'Last Mile',t2:'Delivery',hero:'https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=1800&auto=format&q=80',m1:'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=1000&auto=format&q=80',m2:'https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=1000&auto=format&q=80',sb:'https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=500&auto=format&q=75',tag:'Last Mile Delivery',tgl:'Reliable, branded final-leg delivery — same-day through B2B scheduled, with full digital tracking and ePOD.',b1:'VEGA Last Mile Delivery combines smart route optimisation, real-time driver visibility, and a branded delivery experience. Our platform integrates via API with your OMS, automates dispatch, and provides live tracking links customers can share.',b2:'From parcel delivery to B2B site drops and heavy final-mile delivery for industrial goods, VEGA Last Mile handles every category with the same commitment to on-time performance.',fs:['Same-day delivery in major GCC cities','Next-day and time-slot scheduled delivery options','Branded tracking page with live GPS driver location','Electronic proof of delivery — photo and signature','Automated re-delivery and parcel locker integration','Heavy last-mile delivery for industrial components'],p1t:'Delivery Speeds',p1i:['Same-day (select cities)','Next-day nationwide','Scheduled time slots','Weekend delivery','B2B site deliveries'],p2t:'Platform Features',p2i:['OMS/ERP API integration','Branded tracking portal','SMS & email notifications','Analytics dashboard','Returns portal integration'],ct:'Go Live',cd:'Integrate VEGA Last Mile in under 2 weeks.',ot:['v-freight','v-warehouse','v-supply']},
+  'v-customs':{n:'05',t1:'Customs &',t2:'Compliance',hero:'https://images.unsplash.com/photo-1578575437130-527eed3abbec?w=1800&auto=format&q=80',m1:'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=1000&auto=format&q=80',m2:'https://images.unsplash.com/photo-1578575437130-527eed3abbec?w=1000&auto=format&q=80',sb:'https://images.unsplash.com/photo-1578575437130-527eed3abbec?w=500&auto=format&q=75',tag:'Customs & Compliance',tgl:'Licensed brokerage in 50+ markets — automated, fast, and fully compliant with every trade corridor.',b1:'Customs delays cost money. VEGA Customs & Compliance combines experienced licensed brokers with automated filing technology to clear cargo faster, at lower cost, and in full regulatory compliance — across 50+ jurisdictions.',b2:'Our trade advisory team tracks every tariff change, sanctions update, and FTA opportunity — proactively advising clients on how to reduce duty exposure and avoid compliance penalties.',fs:['Licensed customs brokerage in 50+ countries','Automated import and export declaration filing','HS tariff classification and duty optimisation','FTA utilisation and certificate of origin management','AEO / trusted trader programme support','Trade sanctions and denied party screening','Duty drawback recovery and post-entry correction'],p1t:'Markets Covered',p1i:['GCC & MENA region','European Union','USA & Canada','Southeast Asia','East & West Africa'],p2t:'Compliance Tools',p2i:['Automated filing system','Denied party screening','FTA eligibility checks','Duty drawback tracker','Regulatory alerts'],ct:'Compliance Review',cd:'Free trade compliance health check from our team.',ot:['v-freight','v-supply','v-cold']},
+  'v-cold':{n:'06',t1:'Cold Chain',t2:'Logistics',hero:'https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=1800&auto=format&q=80',m1:'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=1000&auto=format&q=80',m2:'https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=1000&auto=format&q=80',sb:'https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=500&auto=format&q=75',tag:'Cold Chain Logistics',tgl:'GDP-certified temperature-controlled logistics from ambient to -80°C cryogenic — zero excursion tolerance.',b1:'VEGA Cold Chain Logistics was built for the pharmaceutical and biotech sector — and we apply the same rigour to food, chemicals, and any temperature-sensitive cargo. Our GDP-certified operations span the full temperature range with continuous IoT monitoring and zero compromise on cold chain integrity.',b2:'From passive packaging for air freight to active refrigerated transport and cold storage, VEGA provides complete chain-of-custody documentation, excursion reports, and regulatory submission packages.',fs:['Ambient (+15–25°C) through cryogenic (-80°C) capability','GDP-certified warehouses and refrigerated vehicles','Continuous IoT temperature monitoring and real-time alerts','Passive packaging: dry ice, gel packs, PCM solutions','Full batch traceability and temperature certificate packs','IATA CEIV Pharma certified air freight corridors','Halal-certified cold storage facilities available'],p1t:'Temperature Ranges',p1i:['Ambient: +15°C to +25°C','Chilled: +2°C to +8°C','Frozen: -18°C to -25°C','Deep Frozen: -40°C','Cryogenic: -80°C'],p2t:'Certifications',p2i:['GDP compliant operations','ISO 9001:2015 certified','HACCP certified facilities','IATA CEIV Pharma','Halal storage certified'],ct:'Cold Chain Quote',cd:'Request a quote for temperature-sensitive cargo.',ot:['v-freight','v-warehouse','v-customs']}
+};
+
+const VN={'v-freight':'Freight & Haulage','v-warehouse':'Warehousing & Storage','v-supply':'Supply Chain','v-lastmile':'Last Mile Delivery','v-customs':'Customs & Compliance','v-cold':'Cold Chain Logistics'};
+const VI={'v-freight':'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=500&auto=format&q=70','v-warehouse':'https://images.unsplash.com/photo-1553413077-190dd305871c?w=500&auto=format&q=70','v-supply':'https://images.unsplash.com/photo-1552664730-d307ca884978?w=500&auto=format&q=70','v-lastmile':'https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=500&auto=format&q=70','v-customs':'https://images.unsplash.com/photo-1578575437130-527eed3abbec?w=500&auto=format&q=70','v-cold':'https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=500&auto=format&q=70'};
+
+const vFooter=`<footer><div class="footer-grid"><div><div class="nb" style="cursor:default"><div class="nb-box">V</div><div><div class="nb-name">VEGA</div><div class="nb-tag">Freight Group</div></div></div><p class="fbrand-desc">Industrial logistics built on 24 years of expertise.</p></div><div class="fcol"><h4>Services</h4><ul><li><button onclick="vg('v-freight')">Freight & Haulage</button></li><li><button onclick="vg('v-warehouse')">Warehousing</button></li><li><button onclick="vg('v-supply')">Supply Chain</button></li><li><button onclick="vg('v-lastmile')">Last Mile</button></li><li><button onclick="vg('v-customs')">Customs</button></li><li><button onclick="vg('v-cold')">Cold Chain</button></li></ul></div><div class="fcol"><h4>Company</h4><ul><li><button onclick="vg('home')">Home</button></li><li><button onclick="vg('about')">About</button></li><li><button onclick="vg('contact')">Contact</button></li></ul></div><div class="fcol"><h4>Contact</h4><ul><li><a href="#">+974 3300 1234</a></li><li><a href="#">ops@vegafreight.com</a></li><li><a href="#">Doha, Qatar</a></li></ul></div></div><div class="footer-btm"><p>© 2025 <span>VEGA Freight Group</span>. All rights reserved.</p></div></footer>`;
+
+function buildVSD(id){
+  const d=VD[id];
+  const oc=d.ot.map(k=>`<div class="oc-card" onclick="vg('${k}')"><div class="oc-img"><img src="${VI[k]}" alt="${VN[k]}" loading="lazy"/></div><div class="oc-body"><h3>${VN[k]}</h3><p>Explore VEGA's ${VN[k].toLowerCase()} capability.</p></div></div>`).join('');
+
+  document.getElementById('page-'+id).innerHTML=`
+    <div class="ph">
+      <div class="ph-img"><img src="${d.hero}" alt="${d.t1}" loading="lazy"/></div>
+      <div class="ph-content">
+        <div class="badge">Service ${d.n} — ${d.tag}</div>
+        <h1>${d.t1} <span class="yel">${d.t2}</span></h1>
+        <p>${d.tgl}</p>
+      </div>
+    </div>
+    <section class="sec">
+      <div class="sd-layout">
+        <div class="sd-content">
+          <div class="badge" style="margin-bottom:16px">Overview</div>
+          <h3 style="font-size:1.4rem;margin-bottom:16px">Built for Industrial Demand</h3>
+          <p>${d.b1}</p>
+          <div class="sd-img"><img src="${d.m1}" alt="" loading="lazy"/></div>
+          <p>${d.b2}</p>
+          <ul class="feat-list">${d.fs.map(f=>`<li>${f}</li>`).join('')}</ul>
+          <div class="sd-img"><img src="${d.m2}" alt="" loading="lazy"/></div>
+        </div>
+        <div class="sd-sidebar">
+          <div class="sb-img"><img src="${d.sb}" alt="" loading="lazy"/></div>
+          <div class="sb-panel"><h3>${d.p1t}</h3><ul class="sp-list">${d.p1i.map(i=>`<li>${i}</li>`).join('')}</ul></div>
+          <div class="sb-panel"><h3>${d.p2t}</h3><ul class="sp-list">${d.p2i.map(i=>`<li>${i}</li>`).join('')}</ul></div>
+          <div class="sb-cta"><h3>${d.ct}</h3><p>${d.cd}</p><button class="btn btn-c" onclick="vg('contact')">Get Quote →</button></div>
+        </div>
+      </div>
+      <div class="badge" style="display:inline-flex;margin-top:72px;margin-bottom:16px">More Services</div>
+      <h3 style="font-size:1.1rem;margin-bottom:28px;color:var(--w)">Also From VEGA</h3>
+      <div class="oc-grid">${oc}</div>
+    </section>
+    <div class="cta-band">
+      <div class="cta-img"><img src="${d.hero}" alt="" loading="lazy"/></div>
+      <div class="cta-body">
+        <div class="badge">Get Started</div>
+        <h2>Ready to <span class="yel">Ship?</span></h2>
+        <p>Our team responds within 2 hours with a quote and full logistics plan.</p>
+        <div class="cta-btns"><button class="btn btn-y" onclick="vg('contact')">Request a Quote →</button></div>
+      </div>
+    </div>
+    ${vFooter}`;
+}
+Object.keys(VD).forEach(buildVSD);
+
+/* ── Form ── */
+function vSubmit(){
+  const fn=document.getElementById('vfn').value.trim();
+  const em=document.getElementById('vem').value.trim();
+  const ms=document.getElementById('vms').value.trim();
+  if(!fn||!em||!ms){alert('Please fill in required fields.');return;}
+  document.getElementById('vfs').classList.add('show');
+  ['vfn','vln','vem','vph','vco','vms'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('vsv').value='';
+  setTimeout(()=>document.getElementById('vfs').classList.remove('show'),5000);
+}
+
+vg('home');
+</script>
+</body>
+</html>
